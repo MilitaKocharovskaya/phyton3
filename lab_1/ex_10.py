@@ -1,0 +1,6 @@
+s=input()
+a=input()
+b=input()
+l=s.count(a)
+d=s.replace(a, b, l-1)
+print(d.replace(b, a, 1))
