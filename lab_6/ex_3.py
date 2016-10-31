@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 def get_percentile(values, bucket_number):
     n = 100/bucket_number
     a = []
+    a.append(0.0)
     for i in range(1, bucket_number):
          a.append(np.percentile(values, n*i))
     return a
@@ -27,7 +28,7 @@ def value_equalization(value, percentiles, add_random=False):
     idx = get_percentile_number(value, percentiles)
     step = 1/len(percentiles)
     if add_random == True:
-        random_noise = random.uniform(idx*step/100, (idx+1)*step/100)
+        random_noise = random.uniform(0, step)
     else:
         random_noise = 0
     new_value = idx*step + random_noise
@@ -66,33 +67,8 @@ plt.subplot(223)
 plt.imshow(data2, cmap=plt.get_cmap('gray'))
 
 plt.subplot(224)
-values = [data1.flatten()]
+values = [data2.flatten()]
 plt.hist(values, bins=10)
 
-#plt.show()
+plt.show()
 
-#12
-A = []
-for i in range(100):
-    a = random.choice(data)
-    A.append(a)
-plt.subplot(211)
-plt.imshow(A, cmap=plt.get_cmap('gray'))
-
-#13
-d = [i for i in range(1,200)]
-C = []
-c = random.sample(d, 100)
-for i in range(100):
-    C.append(data[c[i]])
-plt.subplot(212)
-plt.imshow(C, cmap=plt.get_cmap('gray'))
-
-#plt.show()
-
-#14
-s = 0
-for i in range(200*267):
-    s = s + data1[i]
-average = s/(len (data1))
-print(average)
