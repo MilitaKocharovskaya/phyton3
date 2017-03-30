@@ -1,0 +1,146 @@
+import os
+import sys
+import math
+
+import array
+
+import statistics
+import networkx as nx
+
+from matplotlib import rc
+rc('font', family='Droid Sans', weight='normal', size=14)
+
+import matplotlib.pyplot as plt
+
+
+class WikiGraph:
+
+    def load_from_file(self, filename):
+        print('Загружаю граф из файла: ' + filename)
+
+        with open(filename) as f:
+            n, _nlinks = map(int, f.readline().split())
+            self._m = n
+            self._l = _nlinks
+            self._titles = []
+            self._sizes = array.array('L', [0]*n)
+            self._links = array.array('L', [0]*_nlinks)
+            self._redirect = array.array('B', [0]*n)
+            self._offset = array.array('L', [0]*(n+1))
+            for i in range(n):
+                t = f.readline().strip()
+                self._titles.append(t)
+                s, r, k = map(int, f.readline().split())
+                self._sizes[i] = s
+                self._redirect[i] = r
+                for j in range(k):
+                    self._links[self._offset[i] + j] = int(f.readline())
+                    self._offset[i + 1] = self._offset[i] + k
+        print('Граф загружен')
+
+    def get_number_of_links_from(self, _id):
+        return len(self.get_links_from(_id))
+
+    def get_links_from(self, _id):
+        return self._links[self._offset[_id]:self._offset[_id+1]]
+
+    def get_id(self, title):
+        return self._titles.index(title)
+
+    def get_number_of_pages(self):
+        return self._m
+
+    def is_redirect(self, _id):
+        if self._redirect[_id]!= 0:
+            return True
+
+    def get_title(self, _id):
+        return self._titles[_id]
+
+    def get_page_size(self, _id):
+        return self._sizes[_id]
+
+
+def hist(fname, data, bins, xlabel, ylabel, title, facecolor='green', alpha=0.5, transparent=True, **kwargs):
+    plt.clf()
+    # TODO: нарисовать гистограмму и сохранить в файл
+
+'''
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        print('Использование: wiki_stats1.py <файл с графом статей>')
+        sys.exit(-1)
+
+    if os.path.isfile(sys.argv[1]):
+        wg = WikiGraph()
+        wg.load_from_file(sys.argv[1])
+    else:
+        print('Файл с графом не найден')
+        sys.exit(-1)
+
+    # TODO: статистика и гистограммы
+    '''
+wg = WikiGraph()
+wg.load_from_file('wiki_small.txt')
+
+r2 = 0
+l = wg.get_number_of_pages()
+for i in range(l):
+    if wg.is_redirect(i):
+        r2 += 1
+print('Количество статей с перенаправлением:',r2)
+
+r3 = l
+for i in range(l):
+    h = wg.get_number_of_links_from(i)
+    r3 = min(r3, h)
+print('Минимальное количество ссылок из статьи:', r3)
+
+r4 = 0
+for i in range(wg.get_number_of_pages()):
+    if wg.get_number_of_links_from(i) == r3:
+        r4 += 1
+print('Количество статей с минимальным количеством ссылок:', r4)
+
+r5 = 0
+for i in range(l):
+    h = wg.get_number_of_links_from(i)
+    r5 = max(r5, h)
+print('Максимальное количество ссылок из статьи:', r5)
+
+r6 = 0
+for i in range(wg.get_number_of_pages()):
+    if wg.get_number_of_links_from(i) == r5:
+        r6 += 1
+print('Количество статей с максимальным количеством ссылок:', r6)
+
+for i in range(l):
+    if wg.get_number_of_links_from(i) == r5:
+        print('Cтатья с наибольшим количеством ссылок:', wg.get_title(i))
+
+r8 = 0
+for i in range(l):
+    r8 += wg.get_number_of_links_from(i)
+print('Среднее количество ссылок в статье', "%.2f"%(r8/l))
+
+r9 = l
+g = 0
+for i in range(l):
+    for j in wg.get_links_from(i):
+        if j == i:
+            g += 1
+    r9 = min(r9, g)
+    g = 0
+print('Минимальное количество ссылок на статью', r9)
+
+r10 = 0
+g = 0
+for i in range(l):
+    for j in wg.get_links_from(i):
+        if j == i:
+            g += 1
+        if r10 == r9:
+            r10 += 1
+    g = 0
+print('количество статей с минимальным количеством внешних ссылок', r10)
