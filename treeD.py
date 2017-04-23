@@ -68,6 +68,7 @@ class Tree:
                 l.append(node.data)
         return l
 
+
 tree = Tree()
 l = []
 s = list(map(int, input().split()))
